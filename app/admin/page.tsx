@@ -6,7 +6,7 @@ import { User } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { useUserContextData } from '../context/userData';
 import { getIdTokenResult } from 'firebase/auth';
-import { collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
+import {  doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebase';
 
 interface User {
@@ -15,13 +15,6 @@ interface User {
     displayName: string;
   }
 
-  type Admin = {
-    id: string[];
-    email: string;
-    admin: boolean;
-    // Add more fields if necessary
-  }
-  
 function Page() {
    
     const [users, setUsers] = useState<User[]>([]);
@@ -39,9 +32,6 @@ function Page() {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>("");
 
-
- console.log(users)
- console.log(admins)
 
 //  const fetchAdmins = async () => {
 //   setLoading(true);

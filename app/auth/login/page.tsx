@@ -28,21 +28,21 @@ const { setIsAdmin} = useUserContextData()
   const provider = new GoogleAuthProvider();
   const { toast } = useToast();
 
-  async function assignAdminRole(uid: string) {
-    const response = await fetch('/api/adminRole', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ uid }),
-    });
+  // async function assignAdminRole(uid: string) {
+  //   const response = await fetch('/api/adminRole', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({ uid }),
+  //   });
   
-    if (response.ok) {
-      console.log('Admin role assigned successfully');
-    } else {
-      console.error('Failed to assign admin role');
-    }
-  }
+  //   if (response.ok) {
+  //     console.log('Admin role assigned successfully');
+  //   } else {
+  //     console.error('Failed to assign admin role');
+  //   }
+  // }
 
 
 
@@ -228,7 +228,7 @@ const { setIsAdmin} = useUserContextData()
             {errors.password && <p className="text-red-500">{errors.password}</p>}
           </div>
 
-          <Link href="/auth/password-reset" className="underline w-[30%] text-sm hover:text-orange-400 cursor-pointer">
+          <Link href="/auth/password-reset" className="underline w-[40%] text-sm hover:text-orange-400 cursor-pointer">
             Forgot password?
           </Link>
 

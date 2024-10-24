@@ -197,7 +197,7 @@ const Page = () => {
   return (
     <>
       {isLoading && <Loader />}
-      <div className="flex flex-col justify-center items-center gap-5 px-5 py-10">
+      <div className="flex flex-col justify-center items-center gap-5 px-5 py-10 mb-20">
         {userFixtures.length > 0 ? (
           <>
             <div className="flex flex-col gap-3">
@@ -207,6 +207,7 @@ const Page = () => {
                 placeholder="Search by user name"
                 value={searchName}
                 className="bg-transparent border-gray-600"
+               
                 onChange={(e) => setSearchName(e.target.value)}
               />
             </div>
@@ -238,6 +239,7 @@ const Page = () => {
                     )}
                     <Input
                       type="text"
+                       placeholder="Home score"
                       className="bg-transparent border-gray-600"
                       value={
                         inputGoals[index]?.homeGoals !== undefined
@@ -271,6 +273,7 @@ const Page = () => {
                     )}
                     <Input
                       type="text"
+                      placeholder="Away score"
                       className="bg-transparent border-gray-600"
                       value={
                         inputGoals[index]?.awayGoals !== undefined

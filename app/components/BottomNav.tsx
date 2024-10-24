@@ -15,6 +15,7 @@ function BottomNav() {
   const isDashboard = pathName === "/home";
   const isProfile = pathName === "/profile";
   const isAdminPage = pathName === "/admin";
+  const isAdminFixtures = pathName === "/admin/fixtures";
 
   const isActive = (path: string) => pathName === path;
 
@@ -26,7 +27,7 @@ function BottomNav() {
 
   return (
     <>
-      {(isDashboard || isProfile || isAdminPage) && (
+      {(isDashboard || isProfile || isAdminPage || isAdminFixtures) && (
         <nav className="bg-[#25262A] dark:text-white p-3 fixed bottom-0 left-0 w-full z-50 rounded-t-xl md:hidden transition-all duration-500 ease-out">
           <ul className="flex justify-between items-center text-slate-300">
             <div className="flex justify-around items-center w-full">

@@ -12,15 +12,9 @@ import { db } from "@/app/firebase/firebase";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { User } from "lucide-react";
-import { Team, useUserContextData } from "@/app/context/userData";
+import { Fixture, Team, useUserContextData } from "@/app/context/userData";
 import { Button } from "@/components/ui/button";
 import Loader from "@/app/components/loader";
-
-// Assuming Team type is defined somewhere
-export type Fixture = {
-  home: Array<{ homeGoals: number; team: Team }>;
-  away: Array<{ awayGoals: number; team: Team }>;
-};
 
 const Page = () => {
   const { customPaidUsers } = useUserContextData();
@@ -33,7 +27,7 @@ const Page = () => {
   const [searchName, setSearchName] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [inputGoals, setInputGoals] = useState<
-    { homeGoals: number; awayGoals: number }[]
+    { homeGoals: string | number; awayGoals: string | number }[]
   >([]);
 
   const shuffleArray = (array: Team[]): Team[] => {
@@ -125,8 +119,8 @@ const Page = () => {
 
   useEffect(() => {
     const updatedGoals = fixtures.map(({ fixture }) => ({
-      homeGoals: fixture.home[0]?.homeGoals || 0,
-      awayGoals: fixture.away[0]?.awayGoals || 0,
+      homeGoals: fixture.home[0]?.homeGoals || "",
+      awayGoals: fixture.away[0]?.awayGoals || "",
     }));
     setInputGoals(updatedGoals);
   }, [fixtures]);
@@ -138,7 +132,7 @@ const Page = () => {
       )
     );
   };
-  
+
   const handleAwayGoalsChange = (index: number, value: number) => {
     setInputGoals((prevInputGoals) =>
       prevInputGoals.map((goal, i) =>
@@ -243,9 +237,13 @@ const Page = () => {
                       </div>
                     )}
                     <Input
-                      type="number"
+                      type="text"
                       className="bg-transparent border-gray-600"
-                      value={inputGoals[index]?.homeGoals || 0}
+                      value={
+                        inputGoals[index]?.homeGoals !== undefined
+                          ? inputGoals[index].homeGoals
+                          : ""
+                      }
                       onChange={(e) =>
                         handleHomeGoalsChange(index, Number(e.target.value))
                       }
@@ -272,9 +270,13 @@ const Page = () => {
                       </div>
                     )}
                     <Input
-                      type="number"
+                      type="text"
                       className="bg-transparent border-gray-600"
-                      value={inputGoals[index]?.awayGoals || 0}
+                      value={
+                        inputGoals[index]?.awayGoals !== undefined
+                          ? inputGoals[index].awayGoals
+                          : ""
+                      }
                       onChange={(e) =>
                         handleAwayGoalsChange(index, Number(e.target.value))
                       }

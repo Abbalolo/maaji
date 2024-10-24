@@ -26,8 +26,8 @@ export type Team = {
 };
 
 export type Fixture = {
-  home: [{ homeGoals: number; team: Team }]; // Array containing home goals and a Team
-  away: [{ awayGoals: number; team: Team }]; // Array containing away goals and a Team
+  home: [{ homeGoals: string | number; team: Team }]; // Array containing home goals and a Team
+  away: [{ awayGoals: string | number; team: Team }]; // Array containing away goals and a Team
 };
 
 // Define the structure of competitions

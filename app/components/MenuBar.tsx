@@ -66,7 +66,7 @@ function MenuBar({setToggleMenu}: MenuBarProps) {
       </button>
       {isAdmin && 
       <div className="px-5">
-        <Button onClick={handleAdmin} className='bg-blue-500 mt-5'>Admin Pane</Button>
+        <Button onClick={handleAdmin} className='bg-blue-500 mt-5'>Admin Panel</Button>
 <div className="flex flex-col gap-3 mt-3">
 <Link href="/admin/fixtures">-Fixtures</Link>
 <Link href="/admin/tables">-Tables</Link>

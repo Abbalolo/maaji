@@ -1,4 +1,4 @@
-"use client";
+"use client"; // Ensure this is a client-side component
 
 import customLeague from "../assets/customeLeague.png";
 import React, { createContext, useState, ReactNode, useContext, useEffect } from "react";
@@ -19,6 +19,17 @@ export interface UserData {
   createdAt: Date;
 }
 
+export type Team = {
+  id: number;
+  name: string;
+  logo: string;
+};
+
+export type Fixture = {
+  home: [{ homeGoals: number; team: Team }]; // Array containing home goals and a Team
+  away: [{ awayGoals: number; team: Team }]; // Array containing away goals and a Team
+};
+
 // Define the structure of competitions
 interface Comp {
   id: number;
@@ -32,10 +43,14 @@ interface Comp {
 interface UserContextType {
   user: FirebaseUser | null;
   userInfo: UserData | null;
-  isAdmin: boolean
-   setIsAdmin: React.Dispatch<React.SetStateAction<boolean>>;
-  customPaidUsers: CustomUser[] | null
+  isAdmin: boolean;
+  setIsAdmin: React.Dispatch<React.SetStateAction<boolean>>;
+  customPaidUsers: CustomUser[] | null;
+  fixtures: Fixture[] | null;
+  userFixtures: Fixture[] | null;
   setUser: React.Dispatch<React.SetStateAction<FirebaseUser | null>>;
+  setFixtures: React.Dispatch<React.SetStateAction<Fixture[] | null>>;
+  setUserFixtures: React.Dispatch<React.SetStateAction<Fixture[] | null>>;
   competitions: Comp[];
   setCompetitions: React.Dispatch<React.SetStateAction<Comp[]>>;
   setUserInfo: React.Dispatch<React.SetStateAction<UserData | null>>;
@@ -70,15 +85,15 @@ interface CustomUser {
   createdAt: Date | Timestamp;
 }
 
-
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [customPaidUsers, setCustomPaidUsers] = useState<CustomUser[]>([]);
+  const [fixtures, setFixtures] = useState<Fixture[] | null>(null);
+  const [userFixtures, setUserFixtures] = useState<Fixture[] | null>(null);
   const [userInfo, setUserInfo] = useState<UserData | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  // const [teams, setTeams] = useState<any[]>([]);
   const [competitions, setCompetitions] = useState<Comp[]>([
     {
       id: 0,
@@ -110,12 +125,82 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     },
   ]);
 
-
-
   const pathname = usePathname();
   const router = useRouter();
+  
+  const checkIfAdmin = async (userUid: any) => {
+    try {
+      if (!userUid) throw new Error("User ID is undefined");
+  
+      // Get user document from Firestore
+      const userDocRef = doc(db, "users", userUid);
+      const userDoc = await getDoc(userDocRef);
+  
+      // Check if user document exists
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+  
+        // Check if the user is an admin
+        if (userData?.admin === true) {  // Assuming `admin` is a boolean field in Firestore
+          console.log("Admin login");
+          setIsAdmin(true); // Set admin state to true
+        } else {
+          setIsAdmin(false); // Set admin state to false if not an admin
+          console.log("Regular user login");
+        }
+      } else {
+        throw new Error("User document not found");
+      }
+    } catch (error) {
+      console.error("Error checking admin status:", error);
+    }
+  };
+  
 
 
+useEffect(() => {
+  if(userInfo?.uid) {
+    checkIfAdmin(userInfo.uid)
+
+  }
+}, [userInfo?.uid])
+
+
+  // useEffect(() => {
+  //   const checkAdmin = async () => {
+  //     const user = auth.currentUser;
+
+  //     if (user) {
+  //       try {
+  //         const token = await getIdTokenResult(user);
+
+  //         if (token.claims.admin) {
+  //           setIsAdmin(true);
+  //           localStorage.setItem("isAdmin", "true");
+  //         } else {
+  //           setIsAdmin(false);
+  //           localStorage.removeItem("isAdmin");
+  //           router.push("/");
+  //         }
+  //       } catch (error) {
+  //         console.error("Error checking admin status:", error);
+  //       }
+  //     } else {
+  //       localStorage.removeItem("isAdmin");
+  //       router.push("/auth/login");
+  //     }
+  //   };
+
+  //   checkAdmin();
+  // }, [router]);
+
+  // Restore admin state from localStorage on page load
+  // useEffect(() => {
+  //   const adminStatus = localStorage.getItem("isAdmin");
+  //   if (adminStatus === "true") {
+  //     setIsAdmin(true);
+  //   }
+  // }, []);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -135,15 +220,12 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         setCustomPaidUsers(usersList);
       } catch (err) {
         console.log(err);
-       
-      } 
+      }
     };
 
     fetchUsers();
   }, []);
 
-  
-  
   const fetchUserData = async (uid: string) => {
     try {
       const userDocRef = doc(db, "users", uid);
@@ -160,15 +242,14 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   useEffect(() => {
-    const excludePaths = ["/auth/login", "/auth/signup", "/"]
+    const excludePaths = ["/auth/login", "/auth/signup", "/"];
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        await fetchUserData(currentUser.uid)
+        await fetchUserData(currentUser.uid);
 
-        if (pathname === "/auth/login" && currentUser) {
-          // Redirect to home or admin page if already logged in
+        if (pathname === "/auth/login") {
           router.push("/home");
         }
       } else if (!excludePaths.includes(pathname)) {
@@ -180,10 +261,27 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     return () => unsubscribe();
   }, [router, pathname]);
 
+  // useEffect(() => {
+  //   const fixturesCollection = collection(db, "match-fixtures");
 
+  //   const unsubscribe = onSnapshot(fixturesCollection, (snapshot) => {
+  //     const fetchedFixtures: Fixture[] = [];
+  //     snapshot.forEach((doc) => {
+  //       const data = doc.data();
+  //       if (data.fixtures) {
+  //         fetchedFixtures.push(...data.fixtures);
+  //       }
+  //     });
+  //     setFixtures(fetchedFixtures);
 
+  //     const currentUserFixtures = fetchedFixtures.filter(
+  //       (match) => match.home === userInfo?.username || match.away.name === userInfo?.username
+  //     );
+  //     setUserFixtures(currentUserFixtures);
+  //   });
 
-
+  //   return () => unsubscribe();
+  // }, [userInfo?.username]);
 
   return (
     <UserContext.Provider
@@ -196,7 +294,12 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         setCompetitions,
         customPaidUsers,
         setCustomPaidUsers,
-        isAdmin, setIsAdmin
+        isAdmin,
+        setIsAdmin,
+        fixtures,
+        userFixtures,
+        setFixtures,
+        setUserFixtures,
       }}
     >
       {children}

@@ -17,52 +17,17 @@ import champion from "../assets/champion.jpg";
 import Table from "../components/Table";
 import Matches from "../components/Matches";
 import Overview from "../components/Overview";
-import { auth } from "../firebase/firebase";
-import { getIdTokenResult } from "firebase/auth";
-import { useUserContextData } from "../context/userData";
+
 
 import { useRouter } from "next/navigation";
 function Page() {
   const [activeTab, setActiveTab] = useState(0);
   const tabs = ["Overview", "Table", "Matches"];
-const { setIsAdmin} = useUserContextData()
-  const router = useRouter();
+// const { setIsAdmin} = useUserContextData()
 
 
-useEffect(() => {
-  const checkAdmin = async () => {
-    const user = auth.currentUser;
 
-    // If the user is logged in
-    if (user) {
-      const token = await getIdTokenResult(user);
-      // console.log(token.claims); // Check if the admin claim is correctly set
 
-      // Check if the user has the admin claim
-      if (token.claims.admin) {
-        setIsAdmin(true);
-        localStorage.setItem("isAdmin", "true"); // Store admin state in local storage
-      } else {
-        localStorage.removeItem("isAdmin");
-        router.push("/"); // Redirect if not admin
-      }
-    } else {
-      localStorage.removeItem("isAdmin");
-      router.push("/auth/login"); // Redirect if not logged in
-    }
-  };
-
-  // Check admin status on component mount
-  checkAdmin();
-}, [router,setIsAdmin]);
-
-// Restore admin state from local storage on page load
-useEffect(() => {
-  const adminStatus = localStorage.getItem("isAdmin");
-  if (adminStatus === "true") {
-    setIsAdmin(true);
-  }
-}, [setIsAdmin]);
 
 
   return (
@@ -76,6 +41,7 @@ useEffect(() => {
           width={500}
           height={500}
           alt="latest champion"
+          priority
         />
        
         <div className="absolute blurred-background -bottom-5 p-3 w-full  flex justify-between ">
@@ -87,6 +53,7 @@ useEffect(() => {
                 height={30}
                 className="rounded-md"
                 alt="user team"
+                priority
               />
               <h3 className="font-semibold text-lg">LOLO</h3>
             </div>
@@ -102,6 +69,7 @@ useEffect(() => {
               height={40}
               className="rounded-md"
               alt="user team"
+              priority
             />
           </div>
         </div>

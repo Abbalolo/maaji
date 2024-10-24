@@ -24,7 +24,7 @@ function Page() {
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [dialogType, setDialogType] = useState<"delete" | "block" | "updatePassword" | null>(null);
 
-    const { isAdmin } = useUserContextData(); // Ensure only admins can access this form
+    const { isAdmin, customPaidUsers } = useUserContextData(); // Ensure only admins can access this form
     const [email, setEmail] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -33,28 +33,6 @@ function Page() {
     const [error, setError] = useState<string>("");
 
 
-//  const fetchAdmins = async () => {
-//   setLoading(true);
-//   try {
-//     // Query Firestore to find all users where admin is true
-//     const q = query(collection(db, 'users'), where('admin', '==', true));
-//     const querySnapshot = await getDocs(q);
-    
-//     // Create the admin list from query snapshot
-//     const adminList = querySnapshot.docs.map((doc) => ({
-//       id: doc.id, // Document ID
-//       ...doc.data() // Spread the document data
-//     }));
-
-//     setAdmins(adminList);
-//     console.log(adminList)
-//   } catch (err) {
-//     console.error('Error fetching admins:', err);
-//     setError('Failed to fetch admins.');
-//   } finally {
-//     setLoading(false);
-//   }
-// };
 
 
 
@@ -260,7 +238,7 @@ function Page() {
           <h3>Paid users</h3>
           
           <span className='p-3 bg-gray-600 rounded-md '><User/></span>
-          <span className='text-4xl font-semibold'>100</span>
+          <span className='text-4xl font-semibold'>{customPaidUsers?.length}</span>
         </div>
        
       </div>

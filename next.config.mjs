@@ -4,7 +4,7 @@ const nextConfig = {
     ignoreDuringBuilds: true, // Disable ESLint during builds
   },
     images: {
-      domains: ["www.sportonspec.co.uk", "cdn.vox-cdn.com", "media.asroma.com"],
+      domains: ["www.sportonspec.co.uk", "cdn.vox-cdn.com", "media.asroma.com", "img.freepik.com"],
     },
   };
   

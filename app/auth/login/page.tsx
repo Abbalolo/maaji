@@ -1,6 +1,7 @@
 "use client";
 import Loader from "@/app/components/loader";
-import { auth } from "@/app/firebase/firebase";
+import { useUserContextData } from "@/app/context/userData";
+import { auth, db } from "@/app/firebase/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +11,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { ChevronLeft, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -17,6 +19,7 @@ import React, { FormEvent, useState } from "react";
 
 function Page() {
   const router = useRouter();
+const { setIsAdmin} = useUserContextData()
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,62 +45,84 @@ function Page() {
   }
 
 
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
-
+  
     const newErrors: { [key: string]: string } = {};
-
+  
+    // Input validation for email and password
     if (!email || !/^[\w-.]+@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email)) {
       newErrors.email = "Please enter a valid email address";
     }
-
+  
     if (!password) {
       newErrors.password = "Please enter a password";
     }
-
+  
+    // If there are any validation errors, set them and stop submission
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-
-    setLoading(true);
-
+  
+    setLoading(true); // Start loading spinner or indicator
+  
     try {
+      // Firebase sign in with email and password
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
-      if (user.uid === process.env.NEXT_PUBLIC_ADMIN_UID) {
-        console.log("Admin login");
-        await assignAdminRole(user.uid);
-        setErrors({});
-      
-        toast({
-          title: "Login successful",
-        });
-        router.push("/home");
-        // router.push("/admin");
-        // router.push(returnUrl !== "/Auth/login" ? returnUrl : "/");
+  
+      // Fetch user document from Firestore
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+  
+      // Check if user document exists
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+  
+        // Check if the user has an admin field set to true
+        if (userData?.admin === true) {
+          console.log("Admin login");
+  
+          setIsAdmin(true); // Set admin state to true
+  
+          // Admin login success toast
+          toast({
+            title: "Admin login successful",
+          
+          });
+  
+          // Redirect to admin dashboard
+          router.push("/admin");
+        } else {
+          // Regular user login success toast
+          toast({
+            title: "Login successful",
+           
+          });
+  
+          // Redirect to the home page
+          router.push("/home");
+        }
       } else {
-        setErrors({});
-        toast({
-          title: "Login successful",
-        });
-        router.push("/home");
+        throw new Error("User document not found in Firestore");
       }
-     
     } catch (error) {
-      setLoading(false);
-      newErrors.password = "Invalid email or password";
-      setErrors(newErrors);
+      console.error("Login error:", error);
+  
+      // Set an error message and show an error toast
+      setErrors({ password: "Invalid email or password" });
       toast({
-        variant: "destructive",
-        title: "User login unsuccessful",
+        title: "Login unsuccessful",
+      
+        description: "Please check your credentials and try again.",
       });
-      console.error(error);
     } finally {
-      setLoading(false);
+      setLoading(false); // Stop loading after completion
     }
   };
+  
 
   const handleGoogleSignIn = async () => {
     setLoading(true);

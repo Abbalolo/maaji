@@ -71,7 +71,7 @@
 // }
 import React from 'react';
 import { useUserContextData } from '../context/userData';
-import Image from 'next/image';
+
 
 // // Define the Team type
 // type Team = {
@@ -158,23 +158,23 @@ const PremierLeagueSimulator: React.FC = () => {
             </p>
 
             <div className="flex gap-10 items-center justify-center">
-            <div className='flex flex-col justify-center items-center gap-3' >
+            {/* <div className='flex flex-col justify-center items-center gap-3' >
               <Image  
                 src={match.home.logo} 
                 alt={`${match.home.name} logo`} 
                 style={{ width: '50px', height: '50px', marginRight: '10px' }} 
               />
               <p>{match.home.name} (Home)</p>
-            </div>
+            </div> */}
             
-            <div className='flex flex-col justify-center items-center gap-3' >
+            {/* <div className='flex flex-col justify-center items-center gap-3' >
               <Image 
                 src={match.away.logo} 
                 alt={`${match.away.name} logo`} 
                 style={{ width: '50px', height: '50px', marginRight: '10px' }} 
               />
               <p>{match.away.name} (Away)</p>
-            </div>
+            </div> */}
 
             </div>
           </div>
